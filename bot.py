@@ -2,9 +2,7 @@ import os
 import nextcord
 from nextcord.ext import commands
 from flask import Flask
-from threading import Thread
 import asyncio
-import config
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -18,11 +16,11 @@ intents = nextcord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# Add your cogs here
+# Load your cogs here
 bot.load_extension("cogs.balance")
 
 async def run_bot():
-    await bot.start(config.BOT_TOKEN)
+    await bot.start(os.environ.get('BOT_TOKEN'))
 
 async def run_flask():
     port = int(os.environ.get('PORT', 5000))
