@@ -2,6 +2,19 @@
 import nextcord
 from nextcord.ext import commands
 import config
+import os
+from flask import Flask
+
+# Dummy HTTP server for Render
+app = Flask(__name__)
+
+@app.route('/')
+def hello():
+    return "Albion Guild Assistance bot is running."
+
+if __name__ == "__main__":
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
 
 intents = nextcord.Intents.default()
 intents.message_content = True
