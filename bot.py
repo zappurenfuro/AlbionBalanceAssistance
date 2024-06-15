@@ -6,6 +6,7 @@ import config
 
 intents = nextcord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
+guilds_ids = []
 
 # Load cogs
 initial_extensions = ['cogs.balance']

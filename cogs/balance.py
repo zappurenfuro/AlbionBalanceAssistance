@@ -14,13 +14,14 @@ from utils.helpers import (
     clear_proofs,
     get_leaderboard
 )
+from bot import guilds_ids
 import config
 
 class BalanceCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @nextcord.slash_command(name="my", description="My balance commands", guild_ids=config.GUILD_IDS)
+    @nextcord.slash_command(name="my", description="My balance commands", guild_ids=guilds_ids)
     async def my_balance(self, interaction: Interaction):
         pass
 
@@ -30,7 +31,7 @@ class BalanceCog(commands.Cog):
         balance = get_balance(user_id)
         await interaction.response.send_message(f"{interaction.user.mention}'s balance: {balance} silver")   
     
-    @nextcord.slash_command(name="bal", description="Balance commands", guild_ids=config.GUILD_IDS)
+    @nextcord.slash_command(name="bal", description="Balance commands", guild_ids=guilds_ids)
     async def balance(self, interaction: Interaction):
         pass
 
