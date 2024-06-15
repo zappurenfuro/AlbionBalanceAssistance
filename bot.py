@@ -6,10 +6,10 @@ import config
 
 intents = nextcord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
-guild_ids = []
+guild_ids = []  # Define your guild IDs here
 
 # Load cogs
-initial_extensions = ['cogs.balance']
+initial_extensions = ['cogs.balance', 'cogs.audit']
 
 if __name__ == '__main__':
     for extension in initial_extensions:
@@ -17,4 +17,3 @@ if __name__ == '__main__':
 
     keep_alive()
     bot.run(config.BOT_TOKEN)
-    

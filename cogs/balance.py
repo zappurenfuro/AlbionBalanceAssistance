@@ -28,7 +28,7 @@ class BalanceCog(commands.Cog):
         guild_id = interaction.guild.id
         user_id = interaction.user.id
         balance = get_balance(guild_id, user_id)
-        await interaction.response.send_message(f"{interaction.user.mention}'s balance: {balance} silver")   
+        await interaction.response.send_message(f"{interaction.user.mention}'s balance: {balance} silver")  
     
     @nextcord.slash_command(name="bal", description="Balance commands", guild_ids=guild_ids)
     async def balance(self, interaction: Interaction):
