@@ -1,4 +1,3 @@
-# cogs/balance.py
 import nextcord
 from nextcord.ext import commands
 from nextcord import Interaction, SlashOption
@@ -14,33 +13,34 @@ from utils.helpers import (
     clear_proofs,
     get_leaderboard
 )
-from bot import guilds_ids
-import config
+from bot import guild_ids
 
 class BalanceCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @nextcord.slash_command(name="my", description="My balance commands", guild_ids=guilds_ids)
+    @nextcord.slash_command(name="my", description="My balance commands", guild_ids=guild_ids)
     async def my_balance(self, interaction: Interaction):
         pass
 
     @my_balance.subcommand(name="bal", description="Show my balance")
     async def show_my_balance(self, interaction: Interaction):
+        guild_id = interaction.guild.id
         user_id = interaction.user.id
-        balance = get_balance(user_id)
+        balance = get_balance(guild_id, user_id)
         await interaction.response.send_message(f"{interaction.user.mention}'s balance: {balance} silver")   
     
-    @nextcord.slash_command(name="bal", description="Balance commands", guild_ids=guilds_ids)
+    @nextcord.slash_command(name="bal", description="Balance commands", guild_ids=guild_ids)
     async def balance(self, interaction: Interaction):
         pass
 
     @balance.subcommand(name="add", description="Add balance")
     async def add_balance_command(self, interaction: Interaction, amount: int, attachment: nextcord.Attachment = SlashOption(description="Proof attachment", required=True)):
+        guild_id = interaction.guild.id
         user_id = interaction.user.id
-        add_balance(user_id, amount)
+        add_balance(guild_id, user_id, amount)
         proof_url = attachment.url
-        add_proof(user_id, proof_url, amount)
+        add_proof(guild_id, user_id, proof_url, amount)
 
         await interaction.response.send_message(f"Adding {amount} silver to your balance. Processing the proof...", ephemeral=True)
 
@@ -52,20 +52,23 @@ class BalanceCog(commands.Cog):
     
     @balance.subcommand(name="del", description="Delete balance")
     async def del_balance_command(self, interaction: Interaction, amount: int, user: nextcord.Member = SlashOption(description="User to show balance for", required=True)):
+        guild_id = interaction.guild.id
         user_id = user.id
-        del_balance(user_id, amount)
+        del_balance(guild_id, user_id, amount)
         await interaction.response.send_message(f"Deleted {amount} silver from {user.mention} balance.")
 
     @balance.subcommand(name="show", description="Show balance")
     async def show_balance(self, interaction: Interaction, user: nextcord.Member = SlashOption(description="User to show balance for", required=True)):
+        guild_id = interaction.guild.id
         user_id = user.id
-        balance = get_balance(user_id)
+        balance = get_balance(guild_id, user_id)
         await interaction.response.send_message(f"{user.mention}'s balance: {balance} silver")
 
     @balance.subcommand(name="proof", description="Show proof")
     async def show_proof(self, interaction: Interaction, user: nextcord.Member = SlashOption(description="User to show proof for", required=True)):
+        guild_id = interaction.guild.id
         user_id = user.id
-        proofs = get_proofs(user_id)
+        proofs = get_proofs(guild_id, user_id)
         if proofs:
             proof_list = "\n".join([f"Proof {idx+1} [{proof['date']}]: {proof['amount']} silver. URL: {proof['url']}" for idx, proof in enumerate(proofs)])
             await interaction.response.send_message(f"{user.mention}'s proofs:\n{proof_list}")
@@ -74,13 +77,15 @@ class BalanceCog(commands.Cog):
     
     @balance.subcommand(name="proof_clear", description="Clear proof")
     async def clear_proof(self, interaction: Interaction, user: nextcord.Member = SlashOption(description="User to clear proofs for", required=True)):
+        guild_id = interaction.guild.id
         user_id = user.id
-        clear_proofs(user_id)
+        clear_proofs(guild_id, user_id)
         await interaction.response.send_message(f"Cleared all proofs for {user.mention}")
 
     @balance.subcommand(name="total", description="Show total balance")
     async def total_balance(self, interaction: Interaction):
-        total = get_total_balance()
+        guild_id = interaction.guild.id
+        total = get_total_balance(guild_id)
         await interaction.response.send_message(f"Total balance across the server: {total} silver")
 
     @balance.subcommand(name="treasury", description="Guild treasury balance commands")
@@ -89,24 +94,28 @@ class BalanceCog(commands.Cog):
 
     @balance.subcommand(name="leaderboard", description="Show top 10 user balances")
     async def leaderboard(self, interaction: Interaction):
-        leaderboard = get_leaderboard()
+        guild_id = interaction.guild.id
+        leaderboard = get_leaderboard(guild_id)
         leaderboard_str = "\n".join([f"{idx+1}. <@{user_id}>: {balance} silver" for idx, (user_id, balance) in enumerate(leaderboard)])
         await interaction.response.send_message(f"Top 10 balances:\n{leaderboard_str}")
     
     @treasury.subcommand(name="show", description="Guild treasury balance commands")
     async def show_treasury(self, interaction: Interaction):
-        balance = get_treasury_balance()
+        guild_id = interaction.guild.id
+        balance = get_treasury_balance(guild_id)
         await interaction.response.send_message(f"Treasury balance: {balance} silver")
 
     @treasury.subcommand(name="add", description="Add to treasury")
     async def add_treasury(self, interaction: Interaction, amount: int):
-        update_treasury(amount)
-        await interaction.response.send_message(f"Added {amount} silver to the treasury. New treasury balance: {get_treasury_balance()} silver")
+        guild_id = interaction.guild.id
+        update_treasury(guild_id, amount)
+        await interaction.response.send_message(f"Added {amount} silver to the treasury. New treasury balance: {get_treasury_balance(guild_id)} silver")
 
     @treasury.subcommand(name="del", description="Remove from treasury")
     async def del_treasury(self, interaction: Interaction, amount: int):
-        update_treasury(-amount)
-        await interaction.response.send_message(f"Removed {amount} silver from the treasury. New treasury balance: {get_treasury_balance()} silver")
+        guild_id = interaction.guild.id
+        update_treasury(guild_id, -amount)
+        await interaction.response.send_message(f"Removed {amount} silver from the treasury. New treasury balance: {get_treasury_balance(guild_id)} silver")
 
 def setup(bot):
     bot.add_cog(BalanceCog(bot))
